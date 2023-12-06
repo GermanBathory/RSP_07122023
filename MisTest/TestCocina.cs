@@ -30,7 +30,7 @@ namespace MisTest
             bool resultado = false;
 
             //act
-            if (cocinero.CantPedidosFinalizados == 0)
+            if (cocinero.TiempoMedioDePreparacion == 0)
             {
                 resultado = true;              
             }

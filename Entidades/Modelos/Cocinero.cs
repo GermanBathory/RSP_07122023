@@ -2,7 +2,7 @@
 using Entidades.Exceptions;
 using Entidades.Files;
 using Entidades.Interfaces;
-
+using System.ComponentModel.Design;
 
 namespace Entidades.Modelos
 {
@@ -13,6 +13,7 @@ namespace Entidades.Modelos
     {
         private int cantPedidosFinalizados;
         private string nombre;
+        private T menu;
         private double demoraPreparacionTotal;
         private CancellationTokenSource cancellation;
 
@@ -54,10 +55,10 @@ namespace Entidades.Modelos
         //no hacer nada
         public double TiempoMedioDePreparacion { get => this.cantPedidosFinalizados == 0 ? 0 : this.demoraPreparacionTotal / this.cantPedidosFinalizados; }
         public string Nombre { get => nombre; }
-        public int CantPedidosFinalizados { get => cantPedidosFinalizados; }
 
         private void IniciarIngreso()
         {
+            CancellationToken token = this.cancellation.Token;
             this.tarea = Task.Run(() =>
             {
                 while (!cancellation.IsCancellationRequested)
@@ -65,39 +66,40 @@ namespace Entidades.Modelos
                     this.NotificarNuevoIngreso();
                     this.EsperarProximoIngreso();
                     this.cantPedidosFinalizados++;
-                    T comida = new T();
-                    DataBaseManager.GuardarTicket<T>(this.Nombre, comida);
+
+                    try
+                    {
+                        DataBaseManager.GuardarTicket<T>(this.Nombre, this.menu);
+                    }
+                    catch (DataBaseManagerException ex)
+                    {
+                        FileManager.Guardar(ex.Message, "logs.txt", true);
+                    }
                 }
-            });
+            }, token);
         }
 
         private void NotificarNuevoIngreso()
         {
             if (this.OnIngreso is not null)
             {
-                T menu = new T();
+                this.menu = new T();
                 menu.IniciarPreparacion();
-                menu.ToString();
                 this.OnIngreso.Invoke(menu);
             }
         }
         private void EsperarProximoIngreso()
         {
             int tiempoEspera = 0;
-            T comida = new T();
 
-            if (this.OnDemora is not null)
+
+            while (this.OnDemora is not null && !cancellation.IsCancellationRequested && !this.menu.Estado)
             {
-                this.tarea = Task.Run(() =>
-                {
-                    while (!cancellation.IsCancellationRequested && !comida.Estado)
-                    {
-                        Thread.Sleep(1000);
-                        tiempoEspera++;
-                    }
-                });
+                tiempoEspera++;
+                this.OnDemora.Invoke(tiempoEspera);
+                Thread.Sleep(1000);
             }
-            this.OnDemora.Invoke(this.demoraPreparacionTotal += tiempoEspera);
+            this.demoraPreparacionTotal += tiempoEspera;
         }
 
     }

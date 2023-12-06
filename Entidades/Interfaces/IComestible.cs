@@ -2,12 +2,12 @@
 {
     public interface IComestible
     {
-        public bool Estado { get; }
-        public string Imagen { get; }
-        public string Ticket { get; }
+        bool Estado { get; }
+        string Imagen { get; }
+        string Ticket { get; }
 
-        public void IniciarPreparacion();
-        public void FinalizarPreparacion(string cocinero);
+        void IniciarPreparacion();
+        void FinalizarPreparacion(string cocinero);
 
     }
 }

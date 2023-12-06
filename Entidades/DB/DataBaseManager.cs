@@ -33,13 +33,14 @@ namespace Entidades.DataBase
                     {
                         return reader.GetString(2);
                     }
-                }
-                throw new ComidaInvalidaExeption("Comida inexistente");
+                    throw new ComidaInvalidaExeption("Comida inexistente");
+                }                
             }
             catch (Exception ex)
             {
-                throw new DataBaseManagerException("Error al intentar leer la BD", ex);
                 FileManager.Guardar(ex.Message, "logs.txt", true);
+                throw new DataBaseManagerException("Error al intentar leer la BD", ex);
+
             }
         }
 
@@ -50,23 +51,21 @@ namespace Entidades.DataBase
                 using (DataBaseManager.connection = new SqlConnection(DataBaseManager.stringConnection))
                 {
                     string query = "INSERT INTO tickets (empleado,ticket)" +
-                        "values (@empleado,@ticket); SELECT @@IDENTITY";
+                        "values (@empleado,@ticket)";
 
-                    SqlCommand command = new SqlCommand(query, connection);
+                    SqlCommand command = new SqlCommand(query, DataBaseManager.connection);
                     command.Parameters.AddWithValue("empleado", nombreEmpleado);
                     command.Parameters.AddWithValue("ticket", comida.Ticket);
                     DataBaseManager.connection.Open();
-                    SqlDataReader reader = command.ExecuteReader();
-
-                    reader.Read();
-                    reader.GetDecimal(0);
+                    command.ExecuteNonQuery();
                     return true;
                 }
             }
             catch (Exception ex)
             {
-                throw new DataBaseManagerException("Error al intentar escribir la BD", ex);
                 FileManager.Guardar(ex.Message, "logs.txt", true);
+                throw new DataBaseManagerException("Error al intentar escribir la BD", ex);
+
             }
         }
 

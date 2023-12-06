@@ -6,21 +6,28 @@ namespace Entidades.MetodosDeExtension
     public static class IngredientesExtension
     {
         /// <summary>
-        /// Calcula costo sumando el costo de los ingredientes al costo base.
+        /// Extiende la clase ListEIngredientes. Calcula costo total sumando el costo incial más el porcentaje
+        /// de los ingredientes.
         /// </summary>
-        /// <param name="ingredientes">Lista de ingredientes</param>
+        /// <param name="ingredientes">Clase que se extiende</param>
         /// <param name="costoInicial">Costo base</param>
-        /// <returns>El valor incrementado</returns>
+        /// <returns>El costo incrementado.</returns>
         public static double CalcularCostoIngredientes(this List<EIngrediente> ingredientes, int costoInicial)
         {
-            double valorIncrementado = 0;
+            double valorIncrementado = costoInicial;
             foreach (EIngrediente ingrediente in ingredientes)
             {
-                valorIncrementado = costoInicial + (costoInicial * (int)ingrediente / 100);
+                valorIncrementado += costoInicial * (int)ingrediente / 100;                
             }
             return valorIncrementado;
         }
 
+        /// <summary>
+        /// Extiende la clase Random. Genera una lista de ingredientes, genera un numero random dentro de la cantidad de la lista 
+        /// y retorna una lista con una cantidad aleatoria de ingredientes.
+        /// </summary>
+        /// <param name="rand">Clase que se extiende</param>
+        /// <returns>Lista con cantidad aleatoria de ingredientes.</returns>
         public static List<EIngrediente> IngredientesAleatorios(this Random rand)
         {
             List<EIngrediente> ingredientes = new List<EIngrediente>()

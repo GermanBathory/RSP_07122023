@@ -20,30 +20,31 @@ namespace Entidades.Files
 
         static FileManager()
         {
+            FileManager.path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            FileManager.path += "\\SP_07122023_BATHORY_GERMAN_2C";
+
             FileManager.ValidaExixtenciaDeDirectorio();
         }
 
         private static void ValidaExixtenciaDeDirectorio()
-        {
-            path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            string rutaCompleta = Path.Combine(path, "SP_07122023_BATHORY_GERMAN_2C");
+        {            
             try
             {
-                if (!Directory.Exists(rutaCompleta))
+                if (!Directory.Exists(FileManager.path))
                 {
-                    Directory.CreateDirectory(rutaCompleta);
+                    Directory.CreateDirectory(FileManager.path);
                 }
             }
             catch (Exception ex)
             {
-                throw new FileManagerException("Error al crear el directorio", ex);
                 FileManager.Guardar(ex.Message, "logs.txt", true);
+                throw new FileManagerException("Error al crear el directorio", ex);
             }
         }
 
         public static void Guardar(string data, string nombreArchivo, bool append)
         {
-            string rutaCompleta = Path.Combine(path, nombreArchivo);
+            string rutaCompleta = Path.Combine(FileManager.path, nombreArchivo);
             try
             {
                 using (StreamWriter sw = new StreamWriter(rutaCompleta, append))
@@ -53,8 +54,8 @@ namespace Entidades.Files
             }
             catch (Exception ex)
             {
-                throw new FileManagerException("Error al guardar archivo", ex);
                 FileManager.Guardar(ex.Message, "logs.txt", true);
+                throw new FileManagerException("Error al guardar archivo", ex);
             }
         }
 
